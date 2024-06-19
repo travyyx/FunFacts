@@ -12,30 +12,26 @@ import Link from "next/link"
 import axios from "axios";
 import { useState } from 'react'
 import { Copy } from 'lucide-react'
+import { useToast } from "@/components/ui/use-toast"
 
 interface Fact {
   fact: string
 }
 export default function Home() {
   const [error, setError] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [data, setData] = useState<Fact[] | null>(null)
+  const { toast } = useToast()
 
   const fetchData = async() => {
-    setLoading(true)
     await axios.get('https://api.api-ninjas.com/v1/facts', {
       headers: {
         'X-Api-Key': 'i1aGse/wqTzMwJ9gX9Nk7A==0MClIDpEGbE5Dd41'
       }
     })
     .then(response => {
-      console.log(response.data);
-      setLoading(false)
       setData(response.data)
     })
     .catch(error => {
-      console.log(error);
-      setLoading(false)
       setError(true)
     });
   }
@@ -65,11 +61,16 @@ export default function Home() {
   </CardHeader>
   <CardContent className="h-full w-full flex flex-col items-center justify-center">
   <p className="leading-7 [&:not(:first-child)]:mt-4 mb-4 text-center w-full">{data && data[0].fact}</p>
+  <div className="w-full flex items-center justify-center gap-3">
     <Button className="text-lg" onClick={() => setData(null)}>Re-Generate.</Button>
+    <Copy className="hover:text-green-500 transition-colors duration-200 cursor-pointer" onClick={() => {
+      navigator.clipboard.writeText(data[0].fact)
+      toast({
+        description: "Fact Copied."
+      })
+    }}/>
+  </div>
   </CardContent>
-  <CardFooter>
-    <Copy/>
-  </CardFooter>
 </Card>
 )}
 </>) : (
